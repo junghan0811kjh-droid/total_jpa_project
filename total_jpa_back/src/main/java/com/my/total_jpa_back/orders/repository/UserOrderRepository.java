@@ -1,12 +1,8 @@
-package com.my.total_jpa_back.repository;
+package com.my.total_jpa_back.orders.repository;
 
 
-import com.my.total_jpa_back.entity.OrderStatus;
-import com.my.total_jpa_back.entity.UserOrder;
-import com.my.total_jpa_back.entity.Users;
-import org.apache.catalina.User;
-import org.aspectj.weaver.ast.Or;
-import org.springframework.core.annotation.Order;
+import com.my.total_jpa_back.common.entity.OrderStatus;
+import com.my.total_jpa_back.orders.entity.UserOrder;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -43,6 +39,7 @@ public interface UserOrderRepository extends JpaRepository<UserOrder, Long> {
     List<UserOrder> findAllByOrderByPriceDesc();
 
     // 9. 최신 주문 5개 조회
+    // select * from user_order order by created_at desc limit 5;
     List<UserOrder> findTop5ByOrderByCreatedAtDesc();
 
     // 10. 상태 여러 개 조회 :  in

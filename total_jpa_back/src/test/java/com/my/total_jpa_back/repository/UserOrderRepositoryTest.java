@@ -1,25 +1,50 @@
 package com.my.total_jpa_back.repository;
 
-import com.my.total_jpa_back.entity.OrderStatus;
-import com.my.total_jpa_back.entity.UserOrder;
-import com.my.total_jpa_back.entity.Users;
+import com.my.total_jpa_back.common.entity.OrderStatus;
+import com.my.total_jpa_back.orders.entity.UserOrder;
+import com.my.total_jpa_back.orders.repository.UserOrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+
 @SpringBootTest
 @Slf4j
 class UserOrderRepositoryTest {
     @Autowired
     UserOrderRepository userOrderRepository;
+
+
+    // 주문 상태에 따른 오름차순 정렬, 제품명에 내림차순, 주문일의 내림차순
+    // 상위 100만 출력
+    @Test
+    @DisplayName("주문상태에 따른 정렬")
+    void multiConditionSortTest() {
+        Sort sort = Sort.by("status")
+                .ascending()
+                .and(
+                        Sort.by("productName")
+                                .descending()
+                                .and(
+                                        Sort.by("createdAt")
+                                                .descending()
+                                )
+                );
+        List<UserOrder> orders = userOrderRepository.findAll(sort);
+
+        orders.stream()
+                .limit(1000)
+                .forEach(x -> log.info("status : {}, productName : {}, createdAt : {}",
+                        x.getStatus(), x.getProductName(), x.getCreatedAt()));
+    }
+
 
     @Test
     @DisplayName("전체 주문 조회")
@@ -61,7 +86,7 @@ class UserOrderRepositoryTest {
         List<UserOrder> orders = userOrderRepository
                 .findByPriceGreaterThanEqual(300000);
         for (UserOrder order : orders) {
-            log.info("name = {}, productName = {}", order.getId(), order.getPrice());
+            log.info("orderId = {}, price = {}", order.getId(), order.getPrice());
         }
     }
     // 5번
@@ -101,7 +126,7 @@ class UserOrderRepositoryTest {
     void findAllByOrderByPriceDesc() {
         List<UserOrder> orders = userOrderRepository
                 .findAllByOrderByPriceDesc();
-        for (int i = 1; i <= 5; i ++){
+        for (int i = 0; i <= 5; i ++){
             log.info("productName = {}, price = {}", orders.get(i).getProductName(),
                     orders.get(i).getPrice());
         }
@@ -124,7 +149,7 @@ class UserOrderRepositoryTest {
                 List.of(OrderStatus.READY, OrderStatus.SHIPPING)
         );
         List<UserOrder> orders = userOrderRepository
-                .findByStatusIn();
+                .findByStatusIn(orderStatusList);
         for (UserOrder order : orders) {
             log.info("orderId = {}, status = {}", order.getId(), order.getStatus());
         }
