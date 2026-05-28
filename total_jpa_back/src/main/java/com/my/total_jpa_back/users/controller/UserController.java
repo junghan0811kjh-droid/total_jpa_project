@@ -1,6 +1,9 @@
 package com.my.total_jpa_back.users.controller;
 
 import com.my.total_jpa_back.common.entity.Gender;
+import com.my.total_jpa_back.common.exception.UserNotFoundException;
+import com.my.total_jpa_back.users.dto.HelloRequest;
+import com.my.total_jpa_back.users.dto.HelloResponse;
 import com.my.total_jpa_back.users.entity.Users;
 import com.my.total_jpa_back.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,24 @@ import java.util.List;
 @RequestMapping("/api")
 public class UserController {
     private final UserRepository userRepository;
+
+    // 예외처리 테스트
+    @GetMapping("/users/{id}")
+    public Users findById(@PathVariable Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(()-> new UserNotFoundException());
+    }
+
+
+    // RequestBody 테스트
+    @PostMapping("/test")
+    // RequestBody : Postman에서 json으로 보낸 데이터를 받는 아이
+    public HelloResponse test(@RequestBody HelloRequest request) {
+        return HelloResponse.builder()
+                .message("안녕하세요" + request.getName())
+                .age(request.getAge())
+                .build();
+    }
 
     // 전체 리스트를 요청
     @GetMapping("/users")
@@ -76,6 +97,8 @@ public class UserController {
         );
         return userRepository.findAll(pageable);
     }
+
+
 
 
 }
