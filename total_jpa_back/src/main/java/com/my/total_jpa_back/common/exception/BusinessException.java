@@ -4,7 +4,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class BusinessException extends RuntimeException{
     private final String message;
+
+    public  BusinessException(String message) {
+        this.message = message;
+    }
+
 }

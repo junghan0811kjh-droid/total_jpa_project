@@ -2,12 +2,87 @@ package com.my.total_jpa_back.orders.repository;
 
 
 import com.my.total_jpa_back.common.entity.OrderStatus;
+import com.my.total_jpa_back.orders.dto.OrderMultiSearchResponse;
+import com.my.total_jpa_back.orders.dto.OrderResponse;
 import com.my.total_jpa_back.orders.entity.UserOrder;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface UserOrderRepository extends JpaRepository<UserOrder, Long> {
+    // userId로 조회
+    @Query("""
+            select new com.my.total_jpa_back.orders.dto.OrderResponse(
+                    o.id,
+                    o.productName,
+                    o.price,
+                    o.status,
+                    u.name
+                    )
+                        from UserOrder o
+                            join o.user u
+                                        where u.id = :userId
+""")
+    List<OrderResponse> searchByUserId(@Param("userId")Long userId);
+
+//    1. COMPLETE 상태
+//    2. price >= 100000
+//    3. 이름에 kim 포함
+//    4. 최신순 정렬
+    @Query("""
+select new com.my.total_jpa_back.orders.dto.OrderMultiSearchResponse(
+                    o.id,
+                    o.productName,
+                    o.price,
+                    o.status,
+                    u.name,
+                    u.email
+)
+    from UserOrder o
+    join o.user u
+    where o.status = :status
+    and o.price >= :price
+    and u.name like %:keyword%
+    order by o.createdAt desc
+""")
+List<OrderMultiSearchResponse> searchOrders(
+        @Param("status") OrderStatus status,
+        @Param("price") Integer price,
+        @Param("keyword") String keyword
+    );
+
+
+    //주문 상태가 COMPLETE인 자료 검색
+    @Query("""
+                    select new com.my.total_jpa_back.orders.dto.OrderResponse(
+                    o.id,
+                    o.productName,
+                    o.price,
+                    o.status,
+                    u.name
+                    )
+                        from UserOrder o
+                            join o.user u
+                                        where o.status = :status
+            """)
+    List<OrderResponse> findOrderStatusResponsse(@Param("status")OrderStatus status);
+
+
+    @Query("""
+                    select new com.my.total_jpa_back.orders.dto.OrderResponse(
+                    o.id,
+                    o.productName,
+                    o.price,
+                    o.status,
+                    u.name
+                                
+                    )
+                        from UserOrder o
+                            join o.user u
+            """)
+    List<OrderResponse> findOrderResponse();
 
     // 1. 전체 주문 조회
     // 2. 주문 상태로 조회 COMPLETE 상태인 주문을 조회

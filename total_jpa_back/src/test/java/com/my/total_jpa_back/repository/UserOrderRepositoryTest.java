@@ -1,8 +1,10 @@
 package com.my.total_jpa_back.repository;
 
 import com.my.total_jpa_back.common.entity.OrderStatus;
+import com.my.total_jpa_back.orders.dto.OrderResponse;
 import com.my.total_jpa_back.orders.entity.UserOrder;
 import com.my.total_jpa_back.orders.repository.UserOrderRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,45 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UserOrderRepositoryTest {
     @Autowired
     UserOrderRepository userOrderRepository;
+
+    // 1번문제
+//    @Test
+//    @Transactional
+//    @DisplayName("주문상태(status)가 COMPLETE 인 것만 조회")
+//    void findByStatus() {
+//        List<UserOrder> orders = userOrderRepository
+//                .findByStatus(OrderStatus.COMPLETE);
+//        for (UserOrder order : orders) {
+//            log.info("orderId = {}, status = {}", order.getId(), order.getStatus());
+//        }
+//    }
+
+    @Test
+    @Transactional
+    @DisplayName("DTO로 결과 받기")
+    void dtoResultTest() {
+        List<OrderResponse> result =
+                userOrderRepository.findOrderResponse();
+        result.stream().limit(100)
+                .forEach(x -> log.info("주문번호: {}, 제품명:{}, 고객명: {}",
+                        x.getOrderId(), x.getProductName(), x.getUserName()));
+    }
+
+    // ManyToOne Test
+    @Test
+    @DisplayName("주문 조회 / 조회 후 회원정보 확인")
+    @Transactional
+    void findOrderAndUserTest() {
+        UserOrder order = userOrderRepository.findById(1L)
+                .orElseThrow();
+        log.info("orderId = {}", order.getId());
+        log.info("제품명 = {}", order.getProductName());
+        log.info("가격 = {}", order.getPrice());
+        log.info("배송상태 = {}", order.getStatus());
+        // User 정보 출력
+        log.info("주문고객 : {}", order.getUser().getName());
+        log.info("이메일 : {}", order.getUser().getEmail());
+    }
 
 
     // 주문 상태에 따른 오름차순 정렬, 제품명에 내림차순, 주문일의 내림차순
@@ -89,16 +130,16 @@ class UserOrderRepositoryTest {
             log.info("orderId = {}, price = {}", order.getId(), order.getPrice());
         }
     }
-    // 5번
-    @Test
-    @DisplayName("findByUserId")
-    void findByUserId() {
-        List<UserOrder> orders = userOrderRepository
-                .findByUserId(1L);
-        for (UserOrder order : orders) {
-            log.info("userId = {}, productName = {}", order.getId(), order.getUserId(), order.getProductName());
-        }
-    }
+//    // 5번
+//    @Test
+//    @DisplayName("findByUserId")
+//    void findByUserId() {
+//        List<UserOrder> orders = userOrderRepository
+//                .findByUserId(1L);
+//        for (UserOrder order : orders) {
+//            log.info("userId = {}, productName = {}", order.getId(), order.getUserId(), order.getProductName());
+//        }
+//    }
     // 6번
     @Test
     @DisplayName("findByUserIdAndStatus")
