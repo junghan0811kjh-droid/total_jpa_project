@@ -21,6 +21,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+//@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
     private final UserRepository userRepository;
     private final UserService userService;
@@ -119,7 +120,11 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ){
-        Pageable pageable = 
+        Pageable pageable = PageRequest.of(
+                page, size,
+                Sort.by("createdAt").descending()
+        );
+        return userService.findPage(pageable);
     }
 
     // Page
