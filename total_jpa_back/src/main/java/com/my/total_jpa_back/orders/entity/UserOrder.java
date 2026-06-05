@@ -4,12 +4,14 @@ import com.my.total_jpa_back.common.entity.BaseEntity;
 import com.my.total_jpa_back.common.entity.OrderStatus;
 import com.my.total_jpa_back.users.entity.Users;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+
 @Table(name = "user_order")
 public class UserOrder extends BaseEntity {
     @Id
